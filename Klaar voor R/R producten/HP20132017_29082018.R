@@ -19,7 +19,7 @@ setwd("C:/R PhD/Habitat use modelling")
 ##Hier lijtk al iets fout te gaan met het inladen van de database en dan voor irt het aantal kolommen (volgende stap)...
 
 #Import the data from a tab delimited ascii file
-HP <- read.csv(file = "Output09082018.csv",
+HPN <- read.csv(file = "Output09082018.csv",
                    header = TRUE, sep = ";", dec = ",")
 
 #dec = ','   means that the comma is used for decimals. 
@@ -59,22 +59,23 @@ source("HighstatLibV10.R")
 
 #Inspect the file
 #What do we have?
-names(HP)
+names(HPN)
 
-str(HP)  #Make sure you have num and not factors for the numerical variables!
+str(HPN)  #Make sure you have num and not factors for the numerical variables!
+## FLIGHT and DATE are Factors. Should and if how to change this??
 
 
 ########################################################################
 # CHECK BEFORE YOU CONTINUE....
 #  - Did you execute the library(lattice) command? 
 #  - Did you source the HighstatLibV10.R file without errors?
-#  - Does the output of str look like ours?
+#  - Does the output of str look like yours?
 
 # If 3x yes..then continue
 
 
 ########################################################################
-#Data exploration
+#Data exploration next steps will be to check for:
 # A Outliers in Y / Outliers in X
 # B Collinearity X
 # C Relationships Y vs X
@@ -89,98 +90,121 @@ str(HP)  #Make sure you have num and not factors for the numerical variables!
 #First some elementary R commands.
 # How do you acces variables in an object like HP19912013?
 ## ABUND en ARE aanpassen naar
-HP              #All data
-head(HP)         #First 6 rows
-head(HP, 10)     #First 10 rows
-HP$DEPTH        #Depth variable
-HP[  ,1]         #First column
-HP[,2]           #Second coloumn
-HP[ , "DEPTH"]   #Depth variable 
-HP[1,"DEPTH"]    #First row of depth variable
-HP[1:10,"DEPTH"] #First 10 rows of depth
+HPN             #All data
+head(HPN)         #First 6 rows
+head(HPN, 10)     #First 10 rows
+HPN$DEPTH         #Depth variable
+HPN[  ,1]         #First column
+HPN[,2]           #Second coloumn
+HPN[ , "DEPTH"]   #Depth variable 
+HPN[1,"DEPTH"]    #First row of depth variable
+HPN[1:10,"DEPTH"] #First 10 rows of depth
 c("DEPTHinM", "SLOPEMAP_1")  #Two characters concatenated
-HP[ , c("DEPTH", "SLOPEMAP_1")] #Depth and slope variables
+HPN[ , c("DEPTH", "SLOPEMAP_1")] #Depth and slope variables
 
 MyVar <- c("DEPTH",  "SLOPEMAP_1")  #Same as last two steps
-HP[, MyVar]
-
-
+HPN[, MyVar]
 
 ##############################################
 #A Outliers
 #MAYBE: Copy from here...
 par(mfrow = c(1, 2))    #Two graphs next to each other
-boxplot(HP$DEPTH, 
+boxplot(HPN$DEPTH, 
         main = "Depth")
 
-dotchart(HP$DEPTH, 
+dotchart(HPN$DEPTH, 
          xlab = "Depth", 
          ylab = "Order of data")
 #...to here and paste into R
 
 par(mfrow = c(1, 1)) # lingle graphs in one
+par(mfrow = c(1, 2)) # two graphs in one line
+par(mfrow = c(2, 2)) # two graphs in two lines 
+## etc
 ###################################################
 # A Outliers in X and Y
 ##DO: basic outlier check, could add more later on
 
-MyVar <- c("DEPTH", "SLOPEMAP_1", "DISTCOAST", "SEIZ", "XUTM", "YUTM")
-Mydotplot(HP[, MyVar])
+par(mfrow = c(2, 3))
+MyVar1 <- c("DEPTH", "SLOPEMAP_1", "DISTCOAST", "SEIZ", "XUTM", "YUTM")
+Mydotplot(HPN[, MyVar1])
+
+par(mfrow = c(2, 2))
+MyVar2 <- c("HP", "NEAR_DIST", "NATURETYPE", "PERIOD")
+Mydotplot(HPN[, MyVar2])
 
 #Why we don't like boxplots....
 par(mfrow = c(1, 2))
-boxplot(HPoud$DEPTHinM)
-dotchart(HPoud$DEPTHinM)
+boxplot(HPN$DEPTH)
+dotchart(HPN$DEPTH)
+
+par(mfrow = c(1, 2))
+boxplot(HPN$SLOPEMAP_1)
+dotchart(HPN$SLOPEMAP_1)
+
+par(mfrow = c(1, 2))
+boxplot(HPN$DISTCOAST)
+dotchart(HPN$DISTCOAST)
+
+par(mfrow = c(1, 2))
+boxplot(HPN$SEIZ)
+dotchart(HPN$SEIZ)
+
+
 
 
 ##We know there are spatial outliers, make them vissible with: 
 #Is there an outlier in the spatial sampling positions? 
 xyplot(YUTM ~ XUTM, 
-       aspect = "iso", #x en y as zelfde units
-       data = HPoud,
+       aspect = "iso", #x en y as same units
+       data = HPN,
        col = 1,
        pch = 16)
 
 xyplot(YUTM ~ XUTM, 
        aspect = "iso", 
-       data = HPoud,
-       col = HPoud$Year, #1 = black, 2 = red
+       data = HPN,
+       col = HP$SEIZ, #1 = black, 2 = red
        pch = 16)
 
 #Identify the outliers 
 #Copy and paste from here...
 par(mfrow = c(1, 1))
-plot(x = HPoud$XUTM, 
-     y = HPoud$YUTM)
-identify(x = HPoud$XUTM, 
-         y =HPoud$YUTM)
+plot(x = HPN$XUTM, 
+     y = HPN$YUTM)
+identify(x = HPN$XUTM, 
+         y =HPN$YUTM)
 #..to here. Click close to a point
+## No spatial outliers here (everything is where it should be based on the surveys)
 #Press ESCAPE to quit
 
 
-#Remove the spatial outlier one at a time (based on clicked points and provided numbers)
-HPoud2 <- HPoud[-c(170, 361, 762, 907, 1346, 1350, 1351, 1668, 1726, 1982, 2059, 2109, 2110, 2169, 3254), ]
-dim(HPoud2)
+#If there are however spatial outliers in a next dataset then --> 
+## Remove the spatial outlier one at a time (based on clicked points and provided numbers)
+## Eample function
+HPN2 <- HPN[-c(170, 361, 762, 907, 1346, 1350, 1351, 1668, 1726, 1982, 2059, 2109, 2110, 2169, 3254), ]
+dim(HPN2)
 
-## Yes 14 outliers manually identified and removed, but thats not all? Check later!
+## Outliers manually identified and removed? but thats not all? Check later!
 
 
 #Are the missing values?
-sum(is.na(HPoud2$XUTM))
-colSums(is.na(HPoud2))
+sum(is.na(HPN$XUTM))
+colSums(is.na(HPN))
 ##No missing vallues in the XUTM
 ## Also do for YUTM???
-sum(is.na(HPoud2$YUTM))
-colSums(is.na(HPoud2))
+sum(is.na(HPN$YUTM))
+colSums(is.na(HPN))
 ## neither for YUTM
 ###############################################################
 ###############################################################
 #Remove missing values if needed, not needed now:
 #Not preferable: Option 1:
-HPoud3 <- na.exclude(HPoud2) #Be careful! Every row where there is somewhere an NA will be removed!
+HPNx <- na.exclude(HPNx) #Be careful! Every row where there is somewhere an NA will be removed!
 ## Check of this is OK for this dataset!!!
 
 ##DO: Option 2 if needed, not needed now:
-I1 <- is.na(HPoud2$XUTM) | is.na(HPoud2$YUTM)  
+I1 <- is.na(HPNx$XUTM) | is.na(HPNx$YUTM)  
 # |   or   
 # &   and   
 # ==  equals
@@ -188,10 +212,10 @@ I1 <- is.na(HPoud2$XUTM) | is.na(HPoud2$YUTM)
 
 
 I1
-HPoud3 <- HPoud2[!I1, ]
-dim(HPoud)
-dim(HPoud2)
-dim(HPoud3)
+HPN2 <- HPNx[!I1, ]
+dim(HPN)
+dim(HPN22)
+dim(HPN3)
 
 #########################################################
 #########################################################
@@ -201,11 +225,11 @@ dim(HPoud3)
 #B Outliers in the X other options to run
 #Copy from here...
 par(mfrow = c(2, 3), mar = c(4, 3, 3, 2)) #mar is white space: botton/left/top/right
-dotchart(HPoud$SLOPEdegrees, main = "Slope")
-dotchart(HPoud$DISTtoSHOREinM, main = "DistanceToShore")
-dotchart(HPoud$Season, main = "Season")
-dotchart(HPoud$Month, main = "Month")
-dotchart(HPoud$Year, main = "Year")
+dotchart(HPN$SLOPEMAP_1, main = "Slope")
+dotchart(HPN$DISTCOAST, main = "DistanceToShore")
+dotchart(HPN$SEIZ, main = "Year")
+dotchart(HPN$PERIOD, main = "Period")
+dotchart(HPN$HP, main = "Count")
 #to here and paste into R
 
 
@@ -213,8 +237,8 @@ dotchart(HPoud$Year, main = "Year")
 ##Without "Associated" because is Factor
 #the following code.
 #First make a vector of names
-MyVar <- c("DEPTHinM", "SLOPEdegrees", "DISTtoSHOREinM", "Season", 
-           "Month", "Year")
+MyVar <- c("DEPTH", "SLOPEMAP_1", "DISTCOAST", "SEIZ", 
+           "HP", "Year")
 MyVar
 
 
@@ -222,23 +246,25 @@ MyVar
 #function. It is in HighstatlibV10.R
 #Make sure that you typed library(lattice) and sourced 
 #the HighstatLibV10.R file 
-Mydotplot(HPoud[ ,MyVar])
+##If the mydotplot function doesnt work, add lattice library again from source
+Mydotplot(HPN[ ,MyVar])
 
 
 
 
 ##Log transformation needed for this data?
-##Based on previous results check!
+##Based on previous results check! 
+## I dont think it is needed for this particular set now
 #Apply transformations
-HPoud$LogDEPTHinM  <- log(HPoud$DEPTHinM)
-HPoud$LogSLOPEdegrees  <- log(HPoud$SLOPEdegrees)
-HPoud$LogDISTtoSHOREinM <- log(HPoud$DISTtoSHOREinM)
-
+HPN$LogDEPTH  <- log(HPN$DEPTHinM)
+HPN$LogSLOPEMAP_1 <- log(HPN$SLOPEMAP_1)
+HPN$LogDISTCOAST <- log(HPN$DISTCOAST)
+## If log fixed then use following, otherwise skip to #B
 ## Then plot again with log adjusted covariates if needed:
-MyVar <- c("DEPTHin<", "SLOPEdegrees", "DISTtoSHOREinM", "Season", 
-           "Month", "Year", "LogDEPTHinM", "LogSLOPEdegrees", "LogDISTtoSHOREinM")
+MyVar <- c("DEPTHin<", "SLOPEMAP_1", "DISTCOAST", "SEIZ", 
+            "PERIOD", "LogDEPTH", "LogSLOPEMAP_1", "LogDISTCOAST")
 
-Mydotplot(HPoud[ ,MyVar])
+Mydotplot(HPN[ ,MyVar])
 ##############################################
 ##############################################
 
@@ -247,33 +273,36 @@ Mydotplot(HPoud[ ,MyVar])
 ##############################################
 #B Collinearity X (or LOg if needed from previous section)
 ## With less variables at the same time?
-##DO
-MyVar <- c("XUTM", "YUTM", "DEPTHinM", "SLOPEdegrees", "DISTtoSHOREinM", "Season", 
-           "Month", "Year")
-pairs(HPoud[, MyVar])
+##DO ## Only gives figures without correltaion value
+MyVar <- c("XUTM", "YUTM", "DEPTH", "SLOPEMAP_1", "DISTCOAST", "SEIZ", 
+           "HP", "PERIOD")
+pairs(HPN[, MyVar])
 
 
 
 #You need HighstatlibV10.R for this. No need to source
 #it again though.
-pairs(HPoud[,c("DEPTHinM", "SLOPEdegrees", "DISTtoSHOREinM", "Season", 
-               "Month", "Year")],
+pairs(HPN[,c("DEPTH", "SLOPEMAP_1", "DISTCOAST", "SEIZ", 
+               "HP", "PERIOD")],
       lower.panel = panel.cor)
 
 
 #This will work as well. It is a wrapper around the pairs
 #function. 
-MyVar <- c("XUTM", "YUTM", "DEPTHinM", "SLOPEdegrees", "DISTtoSHOREinM", "Season", 
-           "Month", "Year")
-Mypairs(HPoud[,MyVar])
+## reload lattice to prevent error
+library(lattice)
+source("HighstatLibV10.R") 
+MyVar <- c("XUTM", "YUTM", "DEPTH", "SLOPEMAP_1", "DISTCOAST", "SEIZ", 
+           "HP", "PERIOD")
+Mypairs(HPN[,MyVar])
 
 #B. Collinearity and relationships other option--> example for season:
 par(mfrow = c(1, 1))
-pairs(HPoud[,MyVar], 
+pairs(HPN[,MyVar], 
       lower.panel = panel.cor)
 
-boxplot(DEPTHinM ~ Season, 
-        data = HPoud,
+boxplot(DEPTH ~ SEIZ, 
+        data = HPN,
         xlab = "Season",
         ylab = "Depth")
 
