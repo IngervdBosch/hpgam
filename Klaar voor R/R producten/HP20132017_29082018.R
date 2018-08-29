@@ -1058,6 +1058,8 @@ legend("topright",
 # This is an edit to show how git works
 # git diff Klaar\ voor\ R/R\ producten/HP20132017_29082018.R
 # git add Klaar\ voor\ R/R\ producten/HP20132017_29082018.R
+# git commit -m "Your message"
+# git push origin master
 
 
 
